@@ -21,7 +21,7 @@ def generate_sessions():
                 for session in Booking.sessions:
                     Booking.sessions_database.append(
                         Session(generate_session_id(fitness_type, week, day, session), fitness_type, day, session,
-                                get_prices(fitness_type), week, [], [], 5, [], [], 0))
+                                get_prices(fitness_type), week))
 
 
 def display_prices():
@@ -44,19 +44,43 @@ class Booking:
         generate_sessions()
 
     @staticmethod
-    def new_booking():
-        print("We offer Yoga, Spin, Zumba and Body-sculpt lessons every weekend, Mornings and Evenings"
-              "\nPress '1' to view our friendly prices, '2' to continue booking or '3' to go back")
+    def register_customer():
+        email_address: str = input("Enter your email address: ")
+
+        for customer in Booking.customer_database:
+            if customer.email_address == email_address:
+                return customer
+
+        first_name: str = input("Enter your first name: ").capitalize()
+        last_name: str = input("Enter your last name: ").capitalize()
+        year_of_birth: int = int(input("Enter your year of birth: "))
+
+        customer = Customer(first_name, last_name, year_of_birth, email_address)
+        Booking.customer_database.append(customer)
+        return customer
+
+    @staticmethod
+    def customer_sign_in():
+        email_address: str = input("Enter your email address: ")
+
+        for customer in Booking.customer_database:
+            if customer.email_address == email_address:
+                return customer
+            return None
+
+    @staticmethod
+    def book_customer(customer: Customer):
+        print("\nWe offer Yoga, Spin, Zumba and Body-sculpt lessons every weekend, Mornings and Evenings")
         while True:
-            user_choice = input(">>> ")
+            user_choice = input("Press '1' to view our friendly prices, '2' to continue or '3' to go back\n>>> ")
             if user_choice == '3':
                 break
             if user_choice == '1':
-                print("\nSmart Choice!")
+                print("\nSmart Choice!\n")
                 print(display_prices())
-                print("Press '2' to continue or '3' to go back")
+                user_choice = input("Press '2' to continue or '3' to go back\n>>> ")
             if user_choice == '2':
-                print("\nExcellent Choice!")
+                print("\nExcellent Choice!\n")
                 while True:
                     fitness_choice = input("Enter 'Yoga', 'Spin', 'Zumba' or 'Body-sculpt' to book\n>>> ").capitalize()
                     if fitness_choice in Booking.fitness_types:
@@ -82,11 +106,25 @@ class Booking:
 
                 session_id = generate_session_id(fitness_choice, week_choice, day_choice, session_choice)
 
-                first_name: str = input("Enter your first name: ")
-                last_name: str = input("Enter your last name: ")
-                year_of_birth: int = int(input("Enter your year of birth: "))
-                email_address: str = input("Enter your email address: ")
+                for session in Booking.sessions_database:
+                    if session.session_id == session_id and session.available_slots < 1:
+                        print("Sorry, booking unsuccessful: Session fully booked.")
 
-                customer = Customer(first_name, last_name, year_of_birth, email_address)
-                Booking.customer_database.append(customer)
+                if session_id in customer.sessions_id:
+                    print("Sorry, booking unsuccessful: Session already booked.")
+
                 customer_uid = customer.generate_uid()
+                for session in Booking.sessions_database:
+                    if session.session_id == session_id:
+                        session.available_slots -= 1
+                        session.booked_customers.append(customer_uid)
+                Booking.customer_database.append(customer)
+                customer.booking_ids.append(customer_uid)
+                customer.sessions_id.append(session_id)
+                print(f"Thank you, booking successful. Booking ID: {customer_uid}\n")
+                break
+
+    @staticmethod
+    def manage_bookings(customer: Customer):
+        pass
+

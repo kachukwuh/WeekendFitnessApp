@@ -2,16 +2,14 @@ from random import choice
 
 
 class Customer:
-    def __init__(self, first_name: str, last_name: str, year_of_birth: int, email: str):
+    def __init__(self, first_name: str, last_name: str, year_of_birth: int, email_address: str):
         self.first_name = first_name
         self.last_name = last_name
         self.year_of_birth = year_of_birth
-        self.email = email
-        self.booking_ids: dict = {}
+        self.email_address = email_address
+        self.booking_ids: list = []
         self.reviews: dict = {}
-
-    def greet_customer(self):
-        print(f"Hi, my name is {self.first_name} and I am {2023 - self.year_of_birth} years old")
+        self.sessions_id: list = []
 
     @staticmethod
     def generate_uid():
