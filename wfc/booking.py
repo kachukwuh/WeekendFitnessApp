@@ -146,10 +146,37 @@ class Booking:
             if current_session:
                 print(f"Booking found!\nYou have a booking for {current_session.day} {current_session.time}, "
                       f"week {current_session.week}: {current_session.name} lesson")
-                return current_session
+                return current_session, booking_id
             else:
                 print("Sorry, booking not found, check the ID and try again")
 
     @staticmethod
-    def attend_lesson(customer: Customer, current_session: Session):
-        pass
+    def attend_lesson(customer: Customer, current_session):
+        session: Session = current_session[0]
+        booking_id: str = current_session[1]
+
+        session.available_slots += 1
+        session.attended_customers_count += 1
+        session.attended_customers_list.append(customer)
+
+        customer.booking_ids.remove(booking_id)
+        customer.sessions_id.update({session.session_id: "attended"})
+        customer.attended_lessons.append(session.session_id)
+
+        user_choice = input("Thank you for attending this session\nPress '1' to leave a review or '2' to leave\n>>> ")
+        if user_choice == '2':
+            print("Thank you for coming, Goodbye")
+        else:
+            review: str = input("Please leave a review\n>>> ")
+            session.reviews.append(review)
+            customer.reviews.update({session.session_id: review})
+            while True:
+                rating: str = input("Please leave a rating: 1: Very dissatisfied, 2: Dissatisfied, 3: Ok, "
+                                    "4: Satisfied, 5: Very Satisfied\n>>> ")
+                if rating.isdigit() and int(rating) in range(1, 6):
+                    session.ratings.append(rating)
+                    customer.ratings.update({session.session_id: rating})
+                    print("Thank you for your time, Goodbye")
+                    break
+                else:
+                    print("Sorry, Invalid Entry")
