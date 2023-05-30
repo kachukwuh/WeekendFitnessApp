@@ -2,7 +2,7 @@ from .session import Session
 from .customer import Customer
 
 
-def get_prices(fitness):
+def get_prices(fitness: str):
     # Getting the price for each fitness type to use in generating sessions
     for key, value in Booking.fitness_prices.items():
         if key == fitness:
@@ -27,8 +27,15 @@ def generate_sessions():
 def display_prices():
     prices: str = ""
     for fitness_type, price in Booking.fitness_prices.items():
-        prices += f"{fitness_type}: £{price}\n"
+        prices += f"Our {fitness_type} lessons are only £{price}\n"
     return prices
+
+
+def get_current_session(booking_id: str):
+    for session in Booking.sessions_database:
+        if booking_id in session.booked_customers:
+            return session
+    return None
 
 
 class Booking:
@@ -70,7 +77,8 @@ class Booking:
 
     @staticmethod
     def book_customer(customer: Customer):
-        print("\nWe offer Yoga, Spin, Zumba and Body-sculpt lessons every weekend, Mornings and Evenings")
+        print(f"\nWelcome, {customer.first_name}\nWe offer Yoga, Spin, Zumba and Body-sculpt lessons every "
+              f"weekend, Mornings and Evenings")
         while True:
             user_choice = input("Press '1' to view our friendly prices, '2' to continue or '3' to go back\n>>> ")
             if user_choice == '3':
@@ -118,7 +126,6 @@ class Booking:
                     if session.session_id == session_id:
                         session.available_slots -= 1
                         session.booked_customers.append(customer_uid)
-                Booking.customer_database.append(customer)
                 customer.booking_ids.append(customer_uid)
                 customer.sessions_id.append(session_id)
                 print(f"Thank you, booking successful. Booking ID: {customer_uid}\n")
@@ -126,5 +133,15 @@ class Booking:
 
     @staticmethod
     def manage_bookings(customer: Customer):
-        pass
+        booking_id: str = input(
+            f"\nWelcome {customer.first_name}\nPlease enter the booking ID to manage a booking\n>>> ")
 
+        current_session: Session = get_current_session(booking_id)
+
+        if current_session:
+            print(f"Booking found!\nYou have a booking for {current_session.day} {current_session.time}, "
+                  f"week {current_session.week}: {current_session.name} lesson")
+            user_choice = input("Press '1', to attend session, '2' to cancel or '3' to go back\n>>> ")
+            return user_choice
+        else:
+            print("Sorry, booking not found, check the ID and try again")

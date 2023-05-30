@@ -1,4 +1,5 @@
 from wfc import Booking
+Booking()
 
 if __name__ == '__main__':
     print("*** Welcome to the Weekend Fitness Club ***")
@@ -11,7 +12,18 @@ if __name__ == '__main__':
             continue
         if user_choice == '2':
             customer = Booking.customer_sign_in()
-            Booking.manage_bookings(customer)
+            if customer is None:
+                print("\nSorry, we have no such records, please do register\n")
+                continue
+            user_choice = Booking.manage_bookings(customer)
+            if user_choice == '1':
+                pass
+            if user_choice == '2':
+                pass
+            if user_choice == '3':
+                continue
+            else:
+                print("\nSorry, Invalid Entry\n")
             continue
         if user_choice == '3':
             print("Thank You, Goodbye")
