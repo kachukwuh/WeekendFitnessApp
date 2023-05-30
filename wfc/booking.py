@@ -117,9 +117,11 @@ class Booking:
                 for session in Booking.sessions_database:
                     if session.session_id == session_id and session.available_slots < 1:
                         print("Sorry, booking unsuccessful: Session fully booked.")
+                        break
 
-                if session_id in customer.sessions_id:
+                if session_id in customer.sessions_id.keys():
                     print("Sorry, booking unsuccessful: Session already booked.")
+                    break
 
                 customer_uid = customer.generate_uid()
                 for session in Booking.sessions_database:
@@ -127,21 +129,27 @@ class Booking:
                         session.available_slots -= 1
                         session.booked_customers.append(customer_uid)
                 customer.booking_ids.append(customer_uid)
-                customer.sessions_id.append(session_id)
+                customer.sessions_id.update({session_id: "booked"})
                 print(f"Thank you, booking successful. Booking ID: {customer_uid}\n")
                 break
 
     @staticmethod
     def manage_bookings(customer: Customer):
-        booking_id: str = input(
-            f"\nWelcome {customer.first_name}\nPlease enter the booking ID to manage a booking\n>>> ")
+        print(f"\nWelcome {customer.first_name}")
+        while True:
+            booking_id: str = input("Please enter the booking ID to manage a booking or 'back' to go back\n>>> ")
+            if booking_id == "back":
+                return "back"
 
-        current_session: Session = get_current_session(booking_id)
+            current_session: Session = get_current_session(booking_id)
 
-        if current_session:
-            print(f"Booking found!\nYou have a booking for {current_session.day} {current_session.time}, "
-                  f"week {current_session.week}: {current_session.name} lesson")
-            user_choice = input("Press '1', to attend session, '2' to cancel or '3' to go back\n>>> ")
-            return user_choice
-        else:
-            print("Sorry, booking not found, check the ID and try again")
+            if current_session:
+                print(f"Booking found!\nYou have a booking for {current_session.day} {current_session.time}, "
+                      f"week {current_session.week}: {current_session.name} lesson")
+                return current_session
+            else:
+                print("Sorry, booking not found, check the ID and try again")
+
+    @staticmethod
+    def attend_lesson(customer: Customer, current_session: Session):
+        pass

@@ -9,7 +9,8 @@ class Customer:
         self.email_address = email_address
         self.booking_ids: list = []
         self.reviews: dict = {}
-        self.sessions_id: list = []
+        self.sessions_id: dict = {}
+        self.attended_lessons: list = []
 
     @staticmethod
     def generate_uid():
