@@ -24,10 +24,11 @@ if __name__ == '__main__':
             user_choice = input("Press '1', to attend session, '2' to cancel or '3' to go back\n>>> ")
 
             if user_choice == '1':
-                Booking.attend_lesson(customer, current_session)
+                Booking.attend_session(customer, current_session)
                 continue
             if user_choice == '2':
-                pass
+                Booking.cancel_session(customer, current_session)
+                continue
             if user_choice == '3':
                 continue
             else:

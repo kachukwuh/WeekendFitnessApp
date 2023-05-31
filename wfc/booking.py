@@ -120,7 +120,7 @@ class Booking:
                         break
 
                 if session_id in customer.sessions_id.keys():
-                    print("Sorry, booking unsuccessful: Session already booked.")
+                    print("Sorry, booking unsuccessful: Session already booked or cancelled.")
                     break
 
                 customer_uid = customer.generate_uid()
@@ -151,7 +151,7 @@ class Booking:
                 print("Sorry, booking not found, check the ID and try again")
 
     @staticmethod
-    def attend_lesson(customer: Customer, current_session):
+    def attend_session(customer: Customer, current_session):
         session: Session = current_session[0]
         booking_id: str = current_session[1]
 
@@ -180,3 +180,17 @@ class Booking:
                     break
                 else:
                     print("Sorry, Invalid Entry")
+
+    @staticmethod
+    def cancel_session(customer: Customer, current_session):
+        session: Session = current_session[0]
+        booking_id: str = current_session[1]
+
+        session.available_slots += 1
+        session.booked_customers.remove(booking_id)
+
+        customer.booking_ids.remove(booking_id)
+        customer.sessions_id.update({session.session_id: "cancelled"})
+
+        print("Booking cancelled successfully, Goodbye")
+
