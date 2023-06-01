@@ -2,17 +2,20 @@ from .session import Session
 from .customer import Customer
 
 
+# Getting the price for each fitness type in generate_sessions()
 def get_prices(fitness: str):
-    # Getting the price for each fitness type to use in generating sessions
     for key, value in Booking.fitness_prices.items():
         if key == fitness:
             return value
 
 
+# Helper function to generate session id: used in generate_sessions()
 def generate_session_id(fitness_type: str, week: int, day: str, session: str):
     return f"{fitness_type}{week}{day[:2]}{session[0]}"
 
 
+# Function to create a database of the different sessions offered
+# Each session has a session_id, fitness_type, day, time, price and week
 def generate_sessions():
     # Creating each session e.g. Saturday morning Yoga session
     for week in range(1, Booking.weeks + 1):
@@ -24,6 +27,7 @@ def generate_sessions():
                                 get_prices(fitness_type), week))
 
 
+# Helper function to display the prices of each fitness type: Used in book_customer()
 def display_prices():
     prices: str = ""
     for fitness_type, price in Booking.fitness_prices.items():
@@ -31,6 +35,7 @@ def display_prices():
     return prices
 
 
+# Helper function that uses a booking_id to return a session: Used in manage_bookings()
 def get_current_session(booking_id: str):
     for session in Booking.sessions_database:
         if booking_id in session.booked_customers:
@@ -48,8 +53,10 @@ class Booking:
     customer_database: list = []
 
     def __init__(self):
+        # Generates sessions database on start up
         generate_sessions()
 
+    # Checks if customer is in the database using their email, if not, creates a new customer and returns the customer
     @staticmethod
     def register_customer():
         email_address: str = input("Enter your email address: ")
@@ -58,14 +65,35 @@ class Booking:
             if customer.email_address == email_address:
                 return customer
 
-        first_name: str = input("Enter your first name: ").capitalize()
-        last_name: str = input("Enter your last name: ").capitalize()
-        year_of_birth: int = int(input("Enter your year of birth: "))
+        while True:
+            first_name: str = input("Enter your first name: ").capitalize()
+            if first_name:
+                break
+            else:
+                print("Please enter a valid first name")
+                continue
+
+        while True:
+            last_name: str = input("Enter your last name: ").capitalize()
+            if last_name:
+                break
+            else:
+                print("Please enter a valid last name")
+                continue
+
+        while True:
+            year_of_birth: int = input("Enter your year of birth: ").isdigit()
+            if year_of_birth:
+                year_of_birth = int(year_of_birth)
+                break
+            else:
+                print("Please enter a valid year of birth")
 
         customer = Customer(first_name, last_name, year_of_birth, email_address)
         Booking.customer_database.append(customer)
         return customer
 
+    # Customer Sign-In: Returns a customer if in database, if not, returns None
     @staticmethod
     def customer_sign_in():
         email_address: str = input("Enter your email address: ")
@@ -75,6 +103,7 @@ class Booking:
                 return customer
             return None
 
+    # Book a customer for session: Receives a customer and books them after some verifications
     @staticmethod
     def book_customer(customer: Customer):
         print(f"\nWelcome, {customer.first_name}\nWe offer Yoga, Spin, Zumba and Body-sculpt lessons every "
@@ -133,6 +162,7 @@ class Booking:
                 print(f"Thank you, booking successful. Booking ID: {customer_uid}\n")
                 break
 
+    # Manage bookings: Receives a customer, asks for a booking_id and returns a particular booked session and booing_id
     @staticmethod
     def manage_bookings(customer: Customer):
         print(f"\nWelcome {customer.first_name}")
@@ -144,12 +174,13 @@ class Booking:
             current_session: Session = get_current_session(booking_id)
 
             if current_session:
-                print(f"Booking found!\nYou have a booking for {current_session.day} {current_session.time}, "
+                print(f"\nBooking found! You have a booking for {current_session.day} {current_session.time}, "
                       f"week {current_session.week}: {current_session.name} lesson")
                 return current_session, booking_id
             else:
                 print("Sorry, booking not found, check the ID and try again")
 
+    # Attend a session: Receives a customer and a session + booking_id, also allows room reviews and ratings
     @staticmethod
     def attend_session(customer: Customer, current_session):
         session: Session = current_session[0]
@@ -181,6 +212,7 @@ class Booking:
                 else:
                     print("Sorry, Invalid Entry")
 
+    # Cancel session: Receives a customer and a session + booking_id
     @staticmethod
     def cancel_session(customer: Customer, current_session):
         session: Session = current_session[0]
@@ -193,4 +225,3 @@ class Booking:
         customer.sessions_id.update({session.session_id: "cancelled"})
 
         print("Booking cancelled successfully, Goodbye")
-
